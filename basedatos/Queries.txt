@@ -1,0 +1,27 @@
+use tienda;
+create table productos(
+	id integer auto_increment,
+    nombre_producto varchar(50),
+    referencia_producto text,
+    precio_unitario numeric(12,2),
+    cantidad numeric(5),
+    primary key(id)
+);
+
+create table ventas(
+	id_venta integer auto_increment,
+    codigo_producto integer,
+    cedula_cliente long,
+    cantidad numeric(5),
+    valor_total numeric(18,5),
+    primary key(id_venta)
+);
+
+drop table producto;
+
+select * from productos;
+select * from ventas;
+
+ALTER TABLE ventas
+  ADD fecha_venta timestamp NOT NULL
+    AFTER valor_total;
