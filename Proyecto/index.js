@@ -20,6 +20,14 @@ app.post('/login', (req, res)=> {
     }
 })
 
+app.post('/venderProducto', (req, res)=> {
+  
+})
+
+app.post('/modificarProducto', (req, res)=> {
+  
+})
+
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
