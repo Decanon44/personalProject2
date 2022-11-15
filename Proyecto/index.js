@@ -25,7 +25,7 @@ app.post('/venderProducto', (req, res)=> {
 })
 
 app.post('/modificarProducto', (req, res)=> {
-  
+    
 })
 
 
