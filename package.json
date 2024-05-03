@@ -1,0 +1,13 @@
+{
+  "devDependencies": {
+    "laravel-mix-tailwind": "^0.1.2"
+  },
+  "dependencies": {
+    "@auth0/auth0-react": "^2.0.2",
+    "axios": "^1.4.0",
+    "bootstrap": "^5.2.3",
+    "react-hook-form": "^7.43.9",
+    "react-router-dom": "^5.2.0",
+    "react-toastify": "^9.1.2"
+  }
+}
