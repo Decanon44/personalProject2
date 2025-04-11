@@ -1,34 +1,34 @@
 import React from "react";
-import {useState} from 'react';
+import { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import axios from "axios";
 
-
 export default function Login() {
-  const [form,setForm] = useState({user:'',pass:''});
+  const [form, setForm] = useState({ user: "", pass: "" });
   const router = useHistory();
 
-  function handleUserOnChange(e){
-    setForm({...form,user:e.target.value})
+  function handleUserOnChange(e) {
+    setForm({ ...form, user: e.target.value });
   }
-  function handlePassOnChange(e){
-    setForm({...form,pass:e.target.value})
+  function handlePassOnChange(e) {
+    setForm({ ...form, pass: e.target.value });
   }
-
 
   function createPost() {
-    
-
-
-    axios.post("http://localhost:3001/login", {
-      "email":form.user, 
-      "password":form.pass
+    axios
+      .post("http://localhost:5000/login", {
+        email: form.user,
+        password: form.pass,
       })
       .then((response) => {
-        if(response.status==200){
-          router.push('/admin')
-        }else{
+        if (response.status == 200) {
+          console.log(response.data);
+          if (response.data == "OK") {
+            router.push("/admin");
+          }
 
+          //
+        } else {
         }
       });
   }
@@ -86,7 +86,9 @@ export default function Login() {
                     <input
                       id="email"
                       type="email"
-                      onChange={(e) =>{handleUserOnChange(e)}}
+                      onChange={(e) => {
+                        handleUserOnChange(e);
+                      }}
                       value={form.user}
                       className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
                       placeholder="Email"
@@ -102,7 +104,7 @@ export default function Login() {
                     </label>
                     <input
                       type="password"
-                      onChange={(e) =>handlePassOnChange(e)}
+                      onChange={(e) => handlePassOnChange(e)}
                       value={form.pass}
                       className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
                       placeholder="Password"

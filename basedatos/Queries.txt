@@ -14,6 +14,7 @@ create table ventas(
     cedula_cliente long,
     cantidad numeric(5),
     valor_total numeric(18,5),
+    fecha_venta date,
     primary key(id_venta)
 );
 
