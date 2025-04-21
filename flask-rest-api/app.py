@@ -1,3 +1,10 @@
+# backend flask
+#Conexión con un modelo de predicción (modelo.pkl)
+#Upload de archivos con ventas
+#Login
+#Una predicción simple usando datos de ventas
+#Todo conectado con una base de datos MySQL
+
 from flask import Flask,Request,request, jsonify
 import pickle
 import pandas as pd
@@ -108,7 +115,7 @@ def getDataMatrix():#recibo el archivo
     
     
     
-
+#revisar
 def series_to_supervised(data, n_in=1, n_out=1, dropnan=True):
     n_vars = 1 if type(data) is list else data.shape[1]
     df = pd.DataFrame(data)
