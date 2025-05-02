@@ -14,10 +14,10 @@ export default function Navbar() {
             href="#pablo"
             onClick={(e) => e.preventDefault()}
           >
-            BIENVENIDOS A TIENDAS GUTIERREZ
+            BIENVENIDOS A SUPERMERCADOS GUTIERREZ
           </a>
           {/* Form */}
-          
+
           {/* User */}
           <ul className="flex-col md:flex-row list-none items-center hidden md:flex">
             <UserDropdown />
@@ -28,7 +28,6 @@ export default function Navbar() {
     </>
   );
 }
-
 
 /*
 <form className="md:flex hidden flex-row flex-wrap items-center lg:ml-auto mr-3">

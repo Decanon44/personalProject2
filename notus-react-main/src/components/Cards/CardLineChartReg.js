@@ -5,7 +5,10 @@ import axios from "axios";
 export default function CardLineChartReg() {
   const [datos, setDatos] = useState();
   const [file, setFile] = useState();
+  const [fecha, setFecha] = useState("");
+  const [resultado, setResultado] = useState(null);
 
+  // Carga de archivo
   function handleChange(event) {
     setFile(event.target.files[0]);
   }
@@ -15,21 +18,33 @@ export default function CardLineChartReg() {
     const url = "http://localhost:5000/uploadFile";
     const formData = new FormData();
     formData.append("file", file);
-    console.log(file);
-    console.log(file.name);
-    //formData.append("fileName", file);
     const config = {
       headers: {
         "content-type": "multipart/form-data",
       },
     };
+    axios.post(url, formData, config).then((response) => {
+      console.log(response.data);
+    });
+  }
+
+  // Predicción por fecha
+  function handleFechaSubmit(event) {
+    event.preventDefault();
+    if (!fecha) return;
+
     axios
-      .post("http://localhost:5000/uploadFile", formData, config)
+      .get(`http://localhost:5000/predecirfecha?fecha=${fecha}`)
       .then((response) => {
-        console.log(response.data);
+        setResultado(response.data.resultado);
+      })
+      .catch((error) => {
+        console.error("Error al predecir:", error);
+        setResultado("Error al obtener la predicción.");
       });
   }
 
+  // Carga de datos para la gráfica
   React.useEffect(() => {
     axios.get("http://localhost:5000/getDataMatrix").then((data) => {
       console.log(data.data);
@@ -48,7 +63,7 @@ export default function CardLineChartReg() {
               fill: false,
             },
             {
-              label: "Regresion Lineal",
+              label: "Regresión Lineal",
               fill: false,
               backgroundColor: "#fff",
               borderColor: "#fff",
@@ -88,7 +103,7 @@ export default function CardLineChartReg() {
                 display: true,
                 scaleLabel: {
                   display: false,
-                  labelString: "Month",
+                  labelString: "Mes",
                   fontColor: "white",
                 },
                 gridLines: {
@@ -110,7 +125,7 @@ export default function CardLineChartReg() {
                 display: true,
                 scaleLabel: {
                   display: false,
-                  labelString: "Value",
+                  labelString: "Valor",
                   fontColor: "white",
                 },
                 gridLines: {
@@ -132,6 +147,7 @@ export default function CardLineChartReg() {
       window.myLine = new Chart(ctx, config);
     });
   }, []);
+
   return (
     <>
       <div className="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-blueGray-700">
@@ -152,17 +168,53 @@ export default function CardLineChartReg() {
           </div>
         </div>
       </div>
-      <div className="">
+
+      {/* 📤 Formulario de carga */}
+      <div className="mb-6 bg-blueGray-700 p-4 rounded shadow-lg">
         <form
           method="post"
-          action=""
-          enctype="multipart/form-data"
           onSubmit={handleSubmit}
+          encType="multipart/form-data"
         >
-          <h1>Carga de archivo de Ventas</h1>
-          <input type="file" onChange={handleChange} />
-          <button type="submit">Enviar</button>
+          <h2 className="text-white text-lg mb-2 font-semibold">
+            Carga de archivo de Ventas
+          </h2>
+          <input
+            type="file"
+            onChange={handleChange}
+            className="text-white mb-2"
+          />
+          <button
+            type="submit"
+            className="bg-green-500 hover:bg-green-700 text-white py-1 px-4 rounded"
+          >
+            Enviar
+          </button>
         </form>
+      </div>
+
+      {/* 📅 Formulario de predicción por fecha */}
+      <div className="mb-6 bg-blueGray-700 p-4 rounded shadow-lg">
+        <form onSubmit={handleFechaSubmit} className="flex items-center gap-2">
+          <h2 className="text-white mr-2">Predecir ventas por fecha:</h2>
+          <input
+            type="date"
+            value={fecha}
+            onChange={(e) => setFecha(e.target.value)}
+            className="rounded px-2 py-1 text-black"
+          />
+          <button
+            type="submit"
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded"
+          >
+            Predecir
+          </button>
+        </form>
+        {resultado && (
+          <div className="mt-2 text-white">
+            <strong>Resultado:</strong> {resultado}
+          </div>
+        )}
       </div>
     </>
   );

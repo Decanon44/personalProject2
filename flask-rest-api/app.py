@@ -7,9 +7,11 @@
 
 from flask import Flask,Request,request, jsonify
 import pickle
-import pandas as pd
+import pandas as pdls
 from flask_cors import CORS
 from  models.VentaModel import *
+from datetime import datetime
+
 
 UPLOAD_FOLDER = '/path/to/the/uploads'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
@@ -74,13 +76,7 @@ def loadData():#recibo el archivo
             data[3]=dataFecha[2]+"-"+dataFecha[1]+"-"+dataFecha[0]
             val.append((data[1],data[2],data[3]))
             line = f.readline()
-          
-            
-          
-          
-
-          
-        print("entro0")
+            print("entro0")
         print(val)
         insertData(val)
         print("entro1")
@@ -88,30 +84,41 @@ def loadData():#recibo el archivo
 
 @app.route('/getDataMatrix', methods=['GET'])
 def getDataMatrix():#recibo el archivo
-    #REALIZ EL SELECT *
-    #SERIALIZAR JSON
-    #return "Hola Mundo"
-    with open('modelo.pkl', 'rb') as f:
-        modelo = pickle.load(f)
-    data=sumTotalByDay()
-    dataLabel = []     # Fechas
-    dataValor = []     # Valores reales (ventas)
-    dataDia = []       # Día como número [1], [2], [3]...
+    try:
+        with open('modelo.pkl', 'rb') as f:
+          modelo = pickle.load(f)
+          data=sumTotalByDay()
+          dataLabel = []     # Fechas
+          dataValor = []     # Valores reales (ventas)
+          dataDia = []       # Día como número [1], [2], [3]...
 
-    for i, d in enumerate(data):
-        dataLabel.append(str(d[0]))   # fecha_venta
-        dataValor.append(int(d[1]))   # valor_total
-        dataDia.append([i + 1])    
-    prediccion = modelo.predict(dataDia)  # Predice con base en los días
+          for i, d in enumerate(data):
+              dataLabel.append(str(d[0]))   # fecha_venta
+              dataValor.append(int(d[1]))   # valor_total
+              dataDia.append([i + 1]) 
+            
+          if(len(dataDia)!=0):
+              prediccion = modelo.predict(dataDia)  # Predice con base en los días
+              dataValor2 = [int(p) for p in prediccion]  # Convertir a int
+              # 4. Retornar el resultado como JSON
+              return jsonify({
+                  "labels": dataLabel,
+                  "valores": dataValor,
+                  "valores2": dataValor2
+              })
+          else:
+              return jsonify({
+                  "labels": [],
+                  "valores": [],
+                  "valores2": []
+              })
 
-    dataValor2 = [int(p) for p in prediccion]  # Convertir a int
-
-    # 4. Retornar el resultado como JSON
-    return jsonify({
-        "labels": dataLabel,
-        "valores": dataValor,
-        "valores2": dataValor2
-    })
+    except Exception as e:
+        print(e)
+      #REALIZ EL SELECT *
+      #SERIALIZAR JSON
+      #return "Hola Mundo"
+    
     
     
     
@@ -161,6 +168,41 @@ def predecir():
         prediccion = model.predict(df)
 
         return jsonify({'prediccion': prediccion.tolist()})
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/predecirfecha', methods=['GET'])
+def predecir_fecha():
+    try:
+        # Obtener fecha desde query param
+        fecha_str = request.args.get('fecha')
+        if not fecha_str:
+            return jsonify({'error': 'Debe proporcionar una fecha en formato YYYY-MM-DD'}), 400
+        
+        fecha_obj = datetime.strptime(fecha_str, '%Y-%m-%d')
+
+        # Obtener la fecha mínima registrada en ventas
+        data = sumTotalByDay()
+        if not data:
+            return jsonify({'error': 'No hay datos de ventas registrados'}), 400
+        
+        fecha_inicio_str = str(data[0][0])
+        fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d')
+
+        # Calcular número de días transcurridos
+        dias_transcurridos = (fecha_obj - fecha_inicio).days + 1
+        if dias_transcurridos <= 0:
+            return jsonify({'error': 'La fecha debe ser posterior a la fecha inicial de ventas'}), 400
+
+        # Cargar el modelo
+        with open('modelo.pkl', 'rb') as file:
+            model = pickle.load(file)
+
+        # Predecir usando el número de día
+        prediccion = model.predict([[dias_transcurridos]])
+
+        return jsonify({'resultado': f"${int(prediccion[0])}"})
     
     except Exception as e:
         return jsonify({'error': str(e)}), 500
